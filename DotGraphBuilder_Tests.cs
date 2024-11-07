@@ -86,7 +86,7 @@ a -- b [color=black; fontsize=12; label=ab]; a -- x; x -- y [color=red; weight=2
 			DotGraphBuilder
 				.UndirectedGraph("G")
 				.AddEdge("a", "b").With(e => e.Weight(3.14))
-				.AddNode("b").With(a => a.Shape(NodeShape.Box))
+                .AddNode("b").With(a => a.Shape(NodeShape.Box))
 				.Build();
 		AssertAreSame("graph G { b [shape=box]; a -- b [weight=3.14] }", dot);
 	}
