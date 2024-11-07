@@ -7,8 +7,7 @@ namespace FluentApi.Graph;
 
 public class DotGraphBuilder :
     INodeBuilder,
-    IEdgeBuilder,
-    IBuilder
+    IEdgeBuilder
 {
     private Graph _graph;
 
@@ -27,13 +26,7 @@ public class DotGraphBuilder :
         return new DotGraphBuilder(graphName, true, false);
     }
 
-
     public string Build()
-    {
-        throw new NotImplementedException();
-    }
-
-    public INodeBuilder With(Action<INodeBuilder> action)
     {
         throw new NotImplementedException();
     }
@@ -43,12 +36,17 @@ public class DotGraphBuilder :
         throw new NotImplementedException();
     }
 
-    public IEdgeBuilder With(Action<IEdgeBuilder> action)
+    public IElement With(INodeBuilder builder)
     {
         throw new NotImplementedException();
     }
 
     public IEdgeBuilder AddEdge(string sourceNode, string destinationNode)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IElement With(IEdgeBuilder builder)
     {
         throw new NotImplementedException();
     }
@@ -59,17 +57,21 @@ public interface IBuilder
     public string Build();
 }
 
-public interface INodeBuilder : IBuilder, IWith<INodeBuilder>
+public interface IElement : INodeBuilder, IEdgeBuilder
+{
+    
+}
+
+public interface INodeBuilder : IBuilder
 {
     public INodeBuilder AddNode(string nodeName);
+
+    public IElement With(INodeBuilder  builder);
 }
 
-public interface IEdgeBuilder : IBuilder, IWith<IEdgeBuilder>
+public interface IEdgeBuilder : IBuilder
 {
     public IEdgeBuilder AddEdge(string sourceNode, string destinationNode);
-}
 
-public interface IWith<out T> 
-{
-    public T With(Action<T> action);
+    public IElement With(IEdgeBuilder builder);
 }
