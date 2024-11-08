@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using FluentApi.Graph;
@@ -8,10 +9,10 @@ namespace FluentApi.Graph;
 
 public class DotGraphBuilder : INodeBuilder, IEdgeBuilder
 {
-    private readonly Graph graph;
+    private readonly Graph _graph;
 
     private DotGraphBuilder(Graph graph) =>
-        this.graph = graph;
+        this._graph = graph;
 
     public static IDotGraphBuilder DirectedGraph(string graphName) =>
         new DotGraphBuilder(new Graph(graphName, true, true));
@@ -21,27 +22,27 @@ public class DotGraphBuilder : INodeBuilder, IEdgeBuilder
 
     public INodeBuilder AddNode(string name)
     {
-        graph.AddNode(name);
+        _graph.AddNode(name);
         return this;
     }
 
     public IEdgeBuilder AddEdge(string from, string to)
     {
-        graph.AddEdge(from, to);
+        _graph.AddEdge(from, to);
         return this;
     }
 
-    public string Build() => graph.ToDotFormat();
+    public string Build() => _graph.ToDotFormat();
 
     public IDotGraphBuilder With(Action<NodeAttributes> addAttributes)
     {
-        addAttributes(new NodeAttributes(graph.Nodes.Last()));
+        addAttributes(new NodeAttributes(_graph.Nodes.Last()));
         return this;
     }
 
     public IDotGraphBuilder With(Action<EdgeAttributes> addAttributes)
     {
-        addAttributes(new EdgeAttributes(graph.Edges.Last()));
+        addAttributes(new EdgeAttributes(_graph.Edges.Last()));
         return this;
     }
 } 
@@ -65,7 +66,7 @@ public interface IDotGraphBuilder
     public string Build();
 }
 
-public abstract class BaseAttributes<TAtr> where TAtr: BaseAttributes<TAtr>
+public abstract class BaseAttributes<TAttribute> where TAttribute : BaseAttributes<TAttribute>
 {
     private readonly Dictionary<string, string> _attributes;
 
@@ -74,20 +75,21 @@ public abstract class BaseAttributes<TAtr> where TAtr: BaseAttributes<TAtr>
         _attributes = attributes;
     }
 
-    public TAtr Label(string value) =>
+    public TAttribute Label(string value) =>
         AddSomeAttribute(MethodBase.GetCurrentMethod(), value);
 
-    public TAtr FontSize(int value) =>
+    public TAttribute FontSize(int value) =>
         AddSomeAttribute(MethodBase.GetCurrentMethod(), value.ToString());
 
-    public TAtr Color(string value) =>
+    public TAttribute Color(string value) =>
         AddSomeAttribute(MethodBase.GetCurrentMethod(), value.ToString());
 
-    protected TAtr AddSomeAttribute(MethodBase attributeKey, string addValue)
+    //Используем имя метода для добавления атрибута
+    protected TAttribute AddSomeAttribute(MethodBase attributeKey, string addValue)
     {
         _attributes.Add(attributeKey.Name.ToLower(), addValue);
 
-        return (TAtr) this;
+        return (TAttribute) this;
     }
 }
 
@@ -102,7 +104,7 @@ public class NodeAttributes : BaseAttributes<NodeAttributes>
     public NodeAttributes(GraphNode node) : base(node.Attributes) { }
 
     public NodeAttributes Shape(NodeShape shape) =>
-        AddSomeAttribute(MethodBase.GetCurrentMethod(), shape.ToString());
+        AddSomeAttribute(MethodBase.GetCurrentMethod(), shape.ToString().ToLower());
 }
 
 public class EdgeAttributes : BaseAttributes<EdgeAttributes>
@@ -110,5 +112,5 @@ public class EdgeAttributes : BaseAttributes<EdgeAttributes>
     public EdgeAttributes(GraphEdge node) : base(node.Attributes) { }
 
     public EdgeAttributes Weight(double weightValue) =>
-        AddSomeAttribute(MethodBase.GetCurrentMethod(), weightValue.ToString());
+        AddSomeAttribute(MethodBase.GetCurrentMethod(), weightValue.ToString(CultureInfo.InvariantCulture));
 }
