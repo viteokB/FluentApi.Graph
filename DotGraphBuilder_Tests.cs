@@ -51,8 +51,6 @@ n1 [color=black; shape=box]; n2 [fontsize=12; label=""node №2""; shape=ellipse
 				.AddEdge("a", "x")
 				.Build();
 		AssertAreSame("digraph G { a -> b; a -> x }", dot);
-
-		var copy = DotGraphBuilder.DirectedGraph("hui")
 	}
 
 	[Test]
